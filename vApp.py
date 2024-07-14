@@ -4,7 +4,8 @@ from openpyxl import load_workbook, Workbook
 # default configuration__________________________________________________________________
 # all files have to be in the same directory
 # openpyxl have to be installed in python
-selected_a_points = [0.01, 0.05, 0.1, 0.5, 1, 3, 5]
+points_5 = [0.01, 0.05, 0.1, 0.5, 1, 3, 5]
+points_1 = [0.01, 0.05, 0.1, 0.5, 1, 0, 0]
 colums_for_points = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] # this has to be more by one
 
 # functions______________________________________________________________________________
@@ -49,13 +50,13 @@ def search_a(variable_list, point_search):
             return [prev, after]
     return [variable_list[-2], variable_list[-1]]
 
-def linear_calc(selected_i_points, variable_list):
-    calc_v = []
-    for sel_i in selected_i_points:
-        line = search_a(variable_list, sel_i)
-        point = (line[1][0] - line[0][0])*(sel_i - line[0][1])/(line[1][1] - line[0][1]) + line[0][0]
-        calc_v.append(round(point, 3))
-    return(calc_v)
+def linear_calc(i_points, variable_list):
+    result = []
+    for i_point in i_points:
+        line = search_a(variable_list, i_point)
+        point = (line[1][0] - line[0][0])*(i_point - line[0][1])/(line[1][1] - line[0][1]) + line[0][0]
+        result.append(round(point, 3))
+    return result
 
 def create_result_sheet(lst):
     result = []
@@ -63,7 +64,10 @@ def create_result_sheet(lst):
         wb = load_workbook(filename = dir_lst_filt[i])
         sheet = wb[str(wb.sheetnames[0])]
         v_a_points = filter_processing(get_points(sheet))
-        v_points = linear_calc(selected_a_points, v_a_points)
+        if v_a_points[-1][1] > 2:
+            v_points = linear_calc(points_5, v_a_points)
+        else:
+            v_points = linear_calc(points_1, v_a_points)
         v_points.append(dir_lst_filt[i][:-5])
         result.append(v_points)
         print(dir_lst_filt[i] + ' ... done!')
