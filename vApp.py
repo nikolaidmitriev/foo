@@ -4,7 +4,7 @@ from openpyxl import load_workbook, Workbook
 # default configuration__________________________________________________________________
 # all files have to be in the same directory
 # openpyxl have to be installed in python
-selected_a_points = [0.01, 0.05, 0.01, 0.05, 1, 3, 5]
+selected_a_points = [0.01, 0.05, 0.1, 0.5, 1, 3, 5]
 colums_for_points = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] # this has to be more by one
 
 # functions______________________________________________________________________________
