@@ -59,7 +59,6 @@ class Transformer {
 
    public Transformer(String path, String fileName) throws Exception {
       name = fileName;
-      System.out.println(fileName);
       FileInputStream fileInput = new FileInputStream(new File(path + "\\" + name));
       XSSFSheet sheet =  new XSSFWorkbook(fileInput).getSheetAt(0);
 
