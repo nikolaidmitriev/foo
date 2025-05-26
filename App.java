@@ -6,11 +6,13 @@ import org.apache.poi.xssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 
 import org.apache.commons.math3.analysis.interpolation.*;
+import org.apache.commons.math3.analysis.polynomials.*;
+import org.apache.commons.math3.stat.regression.*;
 import org.apache.commons.math3.util.*;
 
 public class App {
    private final static String path = "C://Users/admin/Documents/prod/cvc";
-   private final static double[] refValues = new double[]{0.01, 0.05, 0.1, 0.5, 1, 3, 5};
+   private final static double[] refValues = new double[]{0.01, 0.05, 0.1, 0.5, 1, 3, 4.5};
 
    public static void main(String[] args) throws Exception {
       XSSFWorkbook book = new XSSFWorkbook(); 
@@ -22,21 +24,27 @@ public class App {
 
       for(String name: getFileNames(path)) {
          Transformer trans = new Transformer(path, name);
+         //------------------------------------------------
          LoessInterpolator loess = new LoessInterpolator();
          trans.setUval(loess.smooth(trans.getIval(), trans.getUval()));
+         LinearInterpolator interpolator = new LinearInterpolator();
+         PolynomialSplineFunction psf = interpolator.interpolate(trans.getIval(), trans.getUval());
+
+         SimpleRegression regression = new SimpleRegression();
+         for (int i = trans.getIval().length - 5; i < trans.getIval().length; i++) {
+            regression.addData(trans.getIval()[i], trans.getUval()[i]);
+         }
 
          row = sheet.createRow(rowIdx++);
-
-         int refIdx = 0;
-         for (int i = 0; i < trans.getIval().length; i++) {
-            if (trans.getIval()[i] > refValues[refIdx]) {
-               Cell cell = row.createCell(refIdx);
-               cell.setCellValue(trans.getU(i, refValues[refIdx++]));
+         for (int i = 0; i < refValues.length; i++) {
+            Cell cell = row.createCell(i);
+            try {
+               cell.setCellValue(psf.value(refValues[i]));
+            } catch (Exception e) {
+               cell.setCellValue(regression.predict(refValues[i]));
             }
          }
-         Cell cell = row.createCell(refIdx);
-         cell.setCellValue(trans.getU(trans.getIval().length - 1, refValues[refIdx++]));
-         cell = row.createCell(refIdx);
+         Cell cell = row.createCell(refValues.length);
          cell.setCellValue(name.substring(0, name.length() - 5));
       }
 
@@ -86,16 +94,5 @@ class Transformer {
 
    public double[] getUval() {
       return this.uval;
-   }
-
-   public double getU(int idx, double i) {
-      double u;
-      if (idx > 0) {
-         u = (uval[idx] - uval[idx - 1]) * (i - ival[idx - 1]) / (ival[idx] - ival[idx - 1]) + uval[idx - 1];
-      } else {
-         u = (uval[idx + 1] - uval[idx]) * (i - ival[idx]) / (ival[idx + 1] - ival[idx]) + uval[idx];
-      }
-
-      return Precision.round(u, 3);
    }
 }
