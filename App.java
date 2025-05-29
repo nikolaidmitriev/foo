@@ -12,7 +12,7 @@ import org.apache.commons.math3.util.*;
 
 public class App {
    private final static String path = "C://Users/admin/Documents/prod/cvc";
-   private final static double[] refValues = new double[]{0.01, 0.05, 0.1, 0.5, 1, 3, 4.5};
+   private final static double[] refValues = new double[]{0.01, 0.05, 0.1, 0.5, 1, 3, 5};
 
    public static void main(String[] args) throws Exception {
       XSSFWorkbook book = new XSSFWorkbook(); 
